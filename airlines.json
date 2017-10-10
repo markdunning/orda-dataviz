@@ -1,0 +1,35 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v2.json",
+  "data": {
+    "url": "https://raw.githubusercontent.com/markdunning/orda-dataviz/master/airlines.csv",
+    "format": { "type": "csv" }
+  },
+
+  "transform": [
+  {
+    "summarize": [
+	  {
+	    "aggregate": "count",
+	    "as": "count"
+	  }
+    ],
+    "groupby": ["country"]
+  },
+
+  {
+    "filter": {
+	    "field": "count",
+	    "range": [50, 2000]
+    }
+  }
+  ],
+  
+  "mark": "bar",
+  
+  "encoding": {
+    "x": {"field": "country","type": "nominal", "axis": {"title": "country"} },
+    "y": {"field": "count","type": "quantitative", "axis": {"title": "airlines"}},
+        
+    "color": {"field": "country"}          
+  }  
+}
