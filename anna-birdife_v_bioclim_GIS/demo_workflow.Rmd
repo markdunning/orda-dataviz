@@ -1,0 +1,75 @@
+---
+title: "Hirundo rustica range characteristics"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+In our research we used [BirdLife](http://datazone.birdlife.org/) shapefile data, overlay them on [Worldclim BIOCLIM data](http://www.worldclim.org/version1) and extracted statistics for each birdlife polygon
+
+- Birdlife shapefile variable [descriptions](http://datazone.birdlife.org/species/spcdistPOS )
+- Bioclim variable [descriptions](http://www.worldclim.org/bioclim) and [data format](http://www.worldclim.org/current) information
+
+```{r}
+sessionInfo()
+library(rgdal)
+library(tidyverse)
+```
+
+```{r, echo=FALSE, eval=FALSE}
+writeOGR(obj=x, dsn="data", layer="hirundo_rustica", driver="ESRI Shapefile")
+```
+
+```{r}
+shp <- readOGR(dsn="data", layer="hirundo_rustica")
+```
+```{r}
+shp@data %>% names() %>% tibble()
+```
+
+```{r}
+shp@data[,c("SEASONA", "alt_m")]
+```
+
+
+```{r, eval=FALSE}
+plot(shp)
+```
+
+## Leaflet
+
+```{r}
+library(leaflet)
+
+con_var <- "bio3_m"
+
+shp@data$SEASONA <- shp@data$SEASONA %>% factor()
+
+factpal <- colorFactor(topo.colors(length(levels(shp@data$SEASONA))), shp@data$SEASONA)
+
+qpal <- colorBin(
+  palette = "Oranges",
+  domain = shp@data[,con_var]
+  ,n = 5
+  )
+
+range_popup <- paste0("<strong>Seasonality </strong>", 
+                      shp@data$SEASONA, 
+                      "<br><strong>mean altitude: </strong>", 
+                      round(shp@data[,con_var]))
+
+leaflet(shp) %>%
+   addProviderTiles(providers$CartoDB.Positron)  %>% 
+  addPolygons(color = ~factpal(SEASONA), weight = 1, smoothFactor = 0.5,
+    opacity = 1.0, fillOpacity = 0.85,
+    fillColor = ~qpal(shp@data[,con_var]),
+    popup = range_popup,
+    highlightOptions = highlightOptions(color = "white", weight = 2,
+      bringToFront = TRUE)) %>%
+  addLegend("bottomright", pal = qpal, values = ~shp@data[,con_var],
+    title = con_var,
+    opacity = 1
+  )
+
+```
+
+
