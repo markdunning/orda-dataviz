@@ -37,7 +37,8 @@ ui <- fluidPage(
       
       # Show a plot of the generated distribution
       mainPanel(
-         plotlyOutput("distPlot")
+         plotOutput("distPlot")
+         #plotlyOutput("distPlot")
       )
    )
 )
@@ -45,7 +46,8 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
    
-   output$distPlot <- renderPlotly({
+   output$distPlot <- renderPlot({
+     #output$distPlotly <- renderPlot({
       # generate bins based on input$bins from ui.R
      
      if (input$by2Groups) df <- data.frame(x=lidns[[input$category]],y=lidns[[input$variable]],z=lidns[[input$category2]])
@@ -54,8 +56,8 @@ server <- function(input, output) {
      if(input$by2Groups) p <- ggplot(df, aes(x=as.factor(x), y,fill=as.factor(x))) + geom_boxplot() + geom_jitter(width=0.1) + facet_wrap(~z) + xlab(input$category) + ylab(input$variable)
      else p<- ggplot(df, aes(x=as.factor(x), y,fill=as.factor(x))) + geom_boxplot() + geom_jitter(width=0.1) + xlab(input$category) + ylab(input$variable)
      
-     ggplotly(p)
-     
+     #ggplotly(p)
+     p
    })
 }
 
